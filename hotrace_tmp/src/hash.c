@@ -161,12 +161,12 @@ bool	qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf) {
     return true;
 }
 
-void ht_insert(t_ht *ht, char *k, size_t key_size, char *v, size_t value_size)
+void            ht_insert(t_ht *ht, void *k, void *v)
 {
     uint64_t hash_result[2];
-    
+
     // Get both hash values in a single call
-    qhashmurmur3_128(k, key_size, hash_result);
+    qhashmurmur3_128(k, *((size_t *)k - 1), hash_result);
     uint64_t h1 = hash_result[0];
     uint64_t h2 = hash_result[1];
     
@@ -175,21 +175,18 @@ void ht_insert(t_ht *ht, char *k, size_t key_size, char *v, size_t value_size)
     size_t step = 1 + (h2 & (ht->cap - 2)); // Ensure step is never 0
     
     size_t probe = 0;
-    while (ht->tbl[i].k.str)
+    while ((char *)ht->tbl[i].k)
     {
-        if (strcmp(ht->tbl[i].k.str, k) == 0)
+        if (strcmp((char *)ht->tbl[i].k, k) == 0)
         {
-            ht->tbl[i].v.str = v;
-            ht->tbl[i].v.size = value_size;
+            ht->tbl[i].v = v;
             return;
         }
         probe++;
         i = (h1 + probe * step) & (ht->cap - 1);
     }
-    ht->tbl[i].k.str = k;
-    ht->tbl[i].k.size = key_size;
-    ht->tbl[i].v.str = v;
-    ht->tbl[i].v.size = value_size;
+    ht->tbl[i].k = k;
+    ht->tbl[i].v = v;
     ht->size++;
     
     // Resize if load factor exceeds 0.7
@@ -197,7 +194,7 @@ void ht_insert(t_ht *ht, char *k, size_t key_size, char *v, size_t value_size)
         ht_resize(ht, ht->cap * 2);
 }
 
-sstring ht_get(t_ht *ht, const char *k, size_t len)
+void *ht_get(t_ht *ht, const char *k, size_t len)
 {
     uint64_t hash_result[2];
     // Get both hash values in a single call
@@ -206,19 +203,18 @@ sstring ht_get(t_ht *ht, const char *k, size_t len)
     uint64_t h2 = hash_result[1];
     
     size_t i = h1 & (ht->cap - 1);
-    size_t step = 1 + (h2 & (ht->cap - 2)); // Ensure step is never 0
+    size_t step = 1 + (h2 & (ht->cap - 2));
     
     size_t probe = 0;
-    while (ht->tbl[i].k.str)
+    while ((char *)ht->tbl[i].k)
     {
-        // printf("search: %s current: %s\n", k, ht->tbl[i].k.str);
-        if (strcmp(ht->tbl[i].k.str, k) == 0)
+        if (strcmp(ht->tbl[i].k, k) == 0)
             return ht->tbl[i].v;
         
         probe++;
         i = (h1 + probe * step) & (ht->cap - 1);
     }
-    return (sstring){.str = NULL, .size = 0};
+    return NULL;
 }
 
 // Add this resize function to handle growth
@@ -232,8 +228,8 @@ void ht_resize(t_ht *ht, size_t new_cap)
     ht->size = 0;
     
     for (size_t i = 0; i < old_cap; i++) {
-        if (old_tbl[i].k.str) {
-            ht_insert(ht, old_tbl[i].k.str, old_tbl[i].k.size, old_tbl[i].v.str, old_tbl[i].v.size);
+        if (old_tbl[i].k) {
+            ht_insert(ht, old_tbl[i].k, old_tbl[i].v);
             // free((void*)old_tbl[i].k.str); // Free the duplicated key
         }
     }
