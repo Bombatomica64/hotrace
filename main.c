@@ -15,68 +15,6 @@
 
 // --- MAIN ---
 
-// int main(void)
-// {
-	// // 1) mmap-like read all stdin
-	// char *buf = malloc(BUF_SIZE + 1);
-	// ssize_t n = read(0, buf, BUF_SIZE);
-	// if (n <= 0)
-	// 	return 1;
-	// buf[n] = '\0';
-
-	// // 2) conta coppie per dimensionare la tabella
-	// size_t lines = 0;
-	// for (char *p = buf; p < buf + n; ++p)
-	// 	if (*p == '\n')
-	// 		lines++;
-	// size_t pairs = lines / 2;
-	// t_ht ht = ht_create(pairs * 2);
-
-	// // 3) parsing inserimenti (key\nvalue\n)
-	// char *p = buf, *q;
-	// for (size_t i = 0; i < pairs; i++)
-	// {
-	// 	q = strchr(p, '\n');
-	// 	*q = '\0';
-	// 	const char *key = p;
-	// 	p = q + 1;
-	// 	q = strchr(p, '\n');
-	// 	*q = '\0';
-	// 	const char *val = p;
-	// 	p = q + 1;
-	// 	ht_insert(&ht, key, val);
-	// }
-	// // salta eventuale linea vuota
-	// if (*p == '\n')
-	// 	p++;
-
-	// // 4) parsing lookup (key\n)
-	// while (p < buf + n && *p)
-	// {
-	// 	q = strchr(p, '\n');
-	// 	if (!q)
-	// 		break;
-	// 	*q = '\0';
-	// 	const char *key = p;
-	// 	const char *res = ht_get(&ht, key);
-	// 	if (res)
-	// 	{
-	// 		write(1, res, strlen(res));
-	// 		write(1, "\n", 1);
-	// 	}
-	// 	else
-	// 	{
-	// 		write(1, key, strlen(key));
-	// 		write(1, ": Not found\n", 12);
-	// 	}
-	// 	p = q + 1;
-	// }
-	// free(buf);
-	// free(ht.tbl);
-	// return 0;
-
-// }
-
 #include "hotrace.h"
 
 #define CHUNK_SIZE (1 << 20)  // 1MB chunks
@@ -141,7 +79,8 @@ int main(void)
                             {
                                 const char *result = ht_get(&ht, line_buf);
                                 if (result) {
-                                    write(1, result, strlen(result));
+                                    size_t result_len = strlen(result);
+                                    write(1, result, result_len);
                                     write(1, "\n", 1);
                                 } else {
                                     write(1, line_buf, strlen(line_buf));

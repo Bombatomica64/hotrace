@@ -14,7 +14,7 @@
 # define HOTRACE_H
 
 # define TABLE_SIZE 100000
-# define BUF_SIZE (64 << 20) // 64 MB buffer
+# define BUF_SIZE 67108864
 
 # include <unistd.h>
 
@@ -29,11 +29,8 @@
 # include <sys/stat.h>
 # include <unistd.h>
 
-# if defined(__x86_64__) || defined(_M_X64)
-#  define IS_X86_64 1
-# else
-#  define IS_X86_64 0
-# endif
+# define C1 0x87c37b91114253d5ULL
+# define C2 0x4cf5ad432745937fULL
 
 // --- HASH TABLE ---
 
@@ -50,6 +47,17 @@ typedef struct s_ht
 	size_t		size;
 }				t_ht;
 
+typedef struct s_murmur_ctx
+{
+	const void	*data;
+	size_t		nbytes;
+	uint64_t	h1;
+	uint64_t	h2;
+	uint64_t	*blocks;
+	uint8_t		*tail;
+	int			nblocks;
+}				t_murmur_ctx;
+
 uint64_t		murmur3_64(const void *key, size_t len, uint64_t seed);
 t_ht			ht_create(size_t n);
 void			ht_insert(t_ht *ht, const char *k, const char *v);
@@ -58,5 +66,8 @@ void			ht_resize(t_ht *ht, size_t new_cap);
 size_t			next_pow2(size_t n);
 bool			qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf);
 void			ht_free(t_ht *ht);
-
+void			get_hash_values(const void *key, size_t len, uint64_t *h1,
+					uint64_t *h2);
+void			process_tail(const uint8_t *tail, size_t nbytes, uint64_t *h1,
+					uint64_t *h2);
 #endif

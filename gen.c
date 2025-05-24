@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define num_keys 10000
+#define num_keys 1000000
 #define tests 1000
 #define bad_test_chance 0
 
-#define key_size 2500
-#define bad_key_size 2500
-#define data_size 2500
+#define key_size 250
+#define bad_key_size 250
+#define data_size 250
 
 int rand_int_exlusive(int v)
 {
