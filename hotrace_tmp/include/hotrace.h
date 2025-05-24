@@ -35,6 +35,9 @@
 #  define IS_X86_64 0
 # endif
 
+#define ALIGNMENT (2 * sizeof(size_t))
+#define ALIGN(size) (((size) + (ALIGNMENT) - 1) & ~((ALIGNMENT) - 1))
+
 #define CHUNK_SIZE (1 << 20)
 
 typedef enum {
@@ -52,8 +55,13 @@ typedef struct s_entry {
 typedef struct s_ht
 {
 	t_entry		*tbl;
+    void        *keys;
+    void        *values;
 	size_t		cap;
 	size_t		size;
+    size_t      keys_size;
+    size_t      values_size;
+    size_t      data_cap;
 }				t_ht;
 
 uint64_t		murmur3_64(const void *key, size_t len, uint64_t seed);
@@ -64,5 +72,6 @@ void			ht_resize(t_ht *ht, size_t new_cap);
 size_t			next_pow2(size_t n);
 bool			qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf);
 void			ht_free(t_ht *ht);
+void            double_buff(t_ht *ht);
 
 #endif

@@ -1,4 +1,5 @@
 #include "../include/utils.h"
+#include "../include/hotrace.h"
 
 void *ft_memcpy(void *dst, const void *src, size_t len)
 {
@@ -23,7 +24,7 @@ void *ft_memcpy(void *dst, const void *src, size_t len)
         himagic = ((himagic << 16) << 16) | himagic;
         lomagic = ((lomagic << 16) << 16) | lomagic;
     }
-    /* if aligned copy 1 word at a time */
+    /* if ed copy 1 word at a time */
     if ((uintptr_t)dst % sizeof(long) == 0 && (uintptr_t)src % sizeof(long) == 0 && len % sizeof(long) == 0) {
         longword_ptr = (unsigned long int *)dst;
         const unsigned long int *s = (unsigned long int *)src;
@@ -45,4 +46,46 @@ void *ft_memcpy(void *dst, const void *src, size_t len)
         }
     }
     return dst;
+}
+
+void double_buff(t_ht *ht)
+{
+    ht->data_cap *= 2;
+    char *new_keys = malloc(ht->data_cap);
+    char *new_values = malloc(ht->data_cap);
+    size_t  keys_offset = 0;
+    size_t  values_offset = 0;
+
+    for (size_t i = 0; i < ht->cap; i++) {
+        if (!ht->tbl[i].k) {
+            continue;
+        }
+        size_t s = (*((size_t *)ht->tbl[i].k - 1));
+        *((size_t *)((new_keys) + keys_offset)) = s;
+        keys_offset += sizeof(size_t);
+        memcpy(
+            &new_keys[keys_offset],
+            ht->tbl[i].k,
+            s + 1
+        );
+        ht->tbl[i].k = &new_keys[keys_offset];
+        keys_offset += s + 1;
+
+        size_t s2 = (*((size_t *)ht->tbl[i].v - 1));
+        *((size_t *)((new_values) + values_offset)) = s2;
+        values_offset += sizeof(size_t);
+        memcpy(
+            &new_values[values_offset],
+            ht->tbl[i].v,
+            s2 + 1
+        );
+        ht->tbl[i].v = &new_values[values_offset];
+        values_offset += s2 + 1;
+    }
+    free(ht->keys);
+    free(ht->values);
+    ht->keys = new_keys;
+    ht->keys_size = keys_offset;
+    ht->values = new_values;
+    ht->values_size = values_offset;
 }
