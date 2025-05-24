@@ -28,6 +28,13 @@
 # include <string.h>
 # include <sys/stat.h>
 # include <unistd.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+# include <stdio.h>
+# include <string.h>
 
 # define C1 0x87c37b91114253d5ULL
 # define C2 0x4cf5ad432745937fULL

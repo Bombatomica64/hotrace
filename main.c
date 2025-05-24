@@ -18,7 +18,6 @@
 #include "hotrace.h"
 
 #define CHUNK_SIZE (1 << 20)  // 1MB chunks
-
 typedef enum {
     STATE_KEY,       // Reading a key
     STATE_VALUE,     // Reading a value
@@ -30,19 +29,27 @@ int main(void)
     char chunk[CHUNK_SIZE + 1];  // +1 for null termination
     char line_buf[CHUNK_SIZE];   // Buffer for partial lines
     size_t line_len = 0;         // Current line buffer length
-    
     // Initial setup
     t_ht ht = ht_create(1024);   // Start with reasonable size, will resize
     parse_state_t state = STATE_KEY;
-    char *key = NULL;            // Current key being processed
     
+    char **value_list = malloc(sizeof(char *) * 10);
+    int value_index = 0;
+    size_t value_size = 0;
+    value_list[value_index] = malloc(4096 * 4096);
+    
+    char **key_list = malloc(sizeof(char *) * 10);
+    int key_index = 0;
+    size_t key_size = 0;
+    key_list[key_index] = malloc(4096 * 4096);
+
     ssize_t bytes_read;
-    ssize_t buf_pos = 0;          // Position in current chunk
-    
+    ssize_t buf_pos = 0;
+    size_t key_old_size = 0;
+    char *last_key;
     while ((bytes_read = read(0, chunk, CHUNK_SIZE)) > 0) {
         chunk[bytes_read] = '\0';
         buf_pos = 0;
-        
         // Process each character in the chunk
         while (buf_pos < bytes_read) {
             // Find the next newline or end of chunk
@@ -53,7 +60,7 @@ int main(void)
                 size_t line_part_len = newline - (chunk + buf_pos);
                 
                 // Copy this part to line buffer
-                memcpy(line_buf + line_len, chunk + buf_pos, line_part_len);
+                ft_memcpy(line_buf + line_len, chunk + buf_pos, line_part_len);
                 line_len += line_part_len;
                 line_buf[line_len] = '\0';
                 
@@ -64,23 +71,37 @@ int main(void)
                 } else {
                     switch (state) {
                         case STATE_KEY:
-                            key = strdup(line_buf);
+                            if (key_size + line_len > 4096 * 4096) {
+                                key_index++;
+                                key_list[key_index] = malloc(4096 * 4096);
+                                key_size = 0;
+                            }
+                            ft_memcpy(&key_list[key_index][key_size], line_buf, line_len + 1);
+                            last_key = &key_list[key_index][key_size];
+                            key_old_size = line_len;
+                            key_size += line_len + 1;
+                            // printf("line char: %c\n", key_list[key_index][key_size]);
+                            key_list[key_index][key_size] = 0;
                             state = STATE_VALUE;
                             break;
                             
                         case STATE_VALUE:
-                            ht_insert(&ht, key, strdup(line_buf));
-                            free(key);
-                            key = NULL;
+                            if (value_size + line_len > 4096 * 4096) {
+                                value_index++;
+                                value_list[value_index] = malloc(4096 * 4096);
+                                value_size = 0;
+                            }
+                            ft_memcpy(&value_list[value_index][value_size], line_buf, line_len + 1);
+                            ht_insert(&ht, last_key, key_old_size, &value_list[value_index][value_size], line_len);
+                            value_size += line_len + 1;
                             state = STATE_KEY;
                             break;
                             
                         case STATE_SEARCH:
                             {
-                                const char *result = ht_get(&ht, line_buf);
-                                if (result) {
-                                    size_t result_len = strlen(result);
-                                    write(1, result, result_len);
+                                const sstring result = ht_get(&ht, line_buf, line_len);
+                                if (result.str) {
+                                    write(1, result.str, result.size);
                                     write(1, "\n", 1);
                                 } else {
                                     write(1, line_buf, strlen(line_buf));
@@ -103,23 +124,19 @@ int main(void)
             }
         }
     }
-    
-    // Process any remaining line in buffer (should only happen for the last search key if it doesn't end with newline)
+
     if (line_len > 0 && state == STATE_SEARCH) {
         line_buf[line_len] = '\0';
-        const char *result = ht_get(&ht, line_buf);
-        if (result) {
-            write(1, result, strlen(result));
+        sstring result = ht_get(&ht, line_buf, line_len);
+        if (result.str) {
+            write(1, result.str, result.size);
             write(1, "\n", 1);
         } else {
             write(1, line_buf, strlen(line_buf));
             write(1, ": Not found\n", 12);
         }
     }
-    
-    // Clean up
-    // Free all allocated memory in the hash table
-    ht_free(&ht);
-    
+
+    ht_free(&ht);    
     return 0;
 }
