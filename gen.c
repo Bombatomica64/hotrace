@@ -7,9 +7,9 @@
 #define tests 1000
 #define bad_test_chance 0
 
-#define key_size 250
+#define key_size 500
 #define bad_key_size 250
-#define data_size 250
+#define data_size 25
 
 int rand_int_exlusive(int v)
 {
