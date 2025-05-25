@@ -35,7 +35,8 @@ void            ht_insert(t_ht *ht, void *k, void *v)
     size_t probe = 0;
     while ((char *)ht->tbl[i].k)
     {
-        if (ft_strcmp((char *)ht->tbl[i].k, k) == 0)
+        if (*((size_t *)k - 1) != *((size_t *)ht->tbl[i].k - 1) || \
+		ft_strcmp((char *)ht->tbl[i].k, k) == 0)
         {
             ht->tbl[i].v = v;
             return;
@@ -67,7 +68,8 @@ void *ht_get(t_ht *ht, const char *k, size_t len)
     size_t probe = 0;
     while ((char *)ht->tbl[i].k)
     {
-        if (ft_strcmp(ht->tbl[i].k, k) == 0)
+        if (len != *((size_t *)ht->tbl[i].k - 1) || \
+			ft_strcmp(ht->tbl[i].k, k) == 0)
             return ht->tbl[i].v;
         
         probe++;
@@ -109,10 +111,10 @@ t_ht ht_create(size_t n)
 {
     t_ht ht;
     
-    ht.cap = next_pow2(n < 16 ? 16 : n);
+    ht.cap = next_pow2(n);
     ht.size = 0;
     ht.tbl = calloc(ht.cap, sizeof(t_entry));
-    ht.data_cap = 4096;
+    ht.data_cap = INT32_MAX;
     ht.keys = malloc(ht.data_cap);
     ht.values = malloc(ht.data_cap);
     ht.keys_size = 0;

@@ -5,21 +5,21 @@
 #include <time.h>
 
 // Reduced numbers to prevent memory issues
-#define NUM_KEYS 1000000
-#define TESTS 50000
-#define BAD_TEST_CHANCE 1  // Percentage (0-100)
+#define NUM_KEYS 10000000
+#define TESTS 500000
+#define BAD_TEST_CHANCE 30  // Percentage (0-100)
 
 // Key length ranges
-#define MIN_KEY_SIZE 20
-#define MAX_KEY_SIZE 21
+#define MIN_KEY_SIZE 5
+#define MAX_KEY_SIZE 13
 
 // Bad key length ranges
-#define MIN_BAD_KEY_SIZE 20
-#define MAX_BAD_KEY_SIZE 21
+#define MIN_BAD_KEY_SIZE 5
+#define MAX_BAD_KEY_SIZE 13
 
 // Value length ranges
-#define MIN_VALUE_SIZE 20
-#define MAX_VALUE_SIZE 21
+#define MIN_VALUE_SIZE 5
+#define MAX_VALUE_SIZE 13
 
 int rand_int_range(int min, int max)
 {

@@ -74,7 +74,7 @@ int	main(void)
 {
 	t_ht	ht;
 
-	ht = ht_create(1024);
+	ht = ht_create(4096);
 	loop(&ht);
 	ht_free(&ht);
 	return (0);

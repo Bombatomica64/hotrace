@@ -7,6 +7,7 @@ void *ft_align_memcpy(void *dst, const void *src, size_t len)
 	unsigned long int *longword_ptr;
 	unsigned long int longword;
 
+	i = 0;
 	if ((uintptr_t)dst % sizeof(long) == 0 && (uintptr_t)src % sizeof(long) == 0 \
 		&& len % sizeof(long) == 0)
 	{
@@ -33,11 +34,14 @@ void *ft_memcpy(void *dst, const void *src, size_t len)
 	size_t i;
 	char *d = dst;
 	const char *s = src;
-	for (i = 0; i < len; i++) {
+
+	i = 0;
+	while (i < len)
+	{
 		d[i] = s[i];
-		if (d[i] == 0) {
+		if (d[i] == 0)
 			return dst;
-		}
+		i++;
 	}
 		
 	return dst;
@@ -112,60 +116,67 @@ int	ft_strcmp(const char *s1, const char *s2)
 	return (result);
 }
 
-void *ft_memchr(const void *s, int c, size_t n)
+static void	*ft_memchr_small(const unsigned char *src, unsigned char uc,
+	size_t n)
 {
-	const unsigned char *src = s;
-	unsigned char uc = c;
-		
-	// Handle small sizes with direct comparison
-	if (n < 32) {
-		while (n--) {
-			if (*src == uc)
-				return (void *)src;
-			src++;
-		}
-		return NULL;
-	}
-		
-	// Replace vpbroadcastb with SSE2 equivalent
-	__asm__ volatile (
-		"movd %0, %%xmm1\n"
-		"punpcklbw %%xmm1, %%xmm1\n"
-		"punpcklwd %%xmm1, %%xmm1\n"
-		"pshufd $0, %%xmm1, %%xmm1\n"
-		:
-		: "r" ((uint32_t)uc)
-		: "xmm1"
-	);
-		
-	// Main loop - process 32 bytes at a time
-	while (n >= 32) {
-		uint32_t mask;
-		__asm__ volatile (
-			"vmovdqu (%1), %%ymm0\n"		 // Load 32 bytes
-			"vpcmpeqb %%ymm1, %%ymm0, %%ymm0\n" // Compare each byte
-			"vpmovmskb %%ymm0, %0\n"		 // Create mask of matches
-			: "=r" (mask)
-			: "r" (src)
-			: "ymm0"
-		);
-		
-		if (mask) {
-			// Found a match - determine exact position
-			return (void *)(src + __builtin_ctz(mask));
-		}
-		
-		src += 32;
-		n -= 32;
-	}
-		
-	// Handle remaining bytes (0-31)
-	while (n--) {
-		if (*src == uc)
-			return (void *)src;
-		src++;
-	}
-		
-	__asm__ volatile("vzeroupper" ::: "ymm0", "ymm1");
-	return NULL;
+while (n--)
+{
+	if (*src == uc)
+		return ((void *)src);
+	src++;
+}
+return (NULL);
+}
+
+static void	ft_broadcast_char(unsigned char uc)
+{
+__asm__ volatile("movd %0, %%xmm1\n"
+					"punpcklbw %%xmm1, %%xmm1\n"
+					"punpcklwd %%xmm1, %%xmm1\n"
+					"pshufd $0, %%xmm1, %%xmm1\n"
+					:
+					: "r"((uint32_t)uc)
+					: "xmm1");
+}
+
+static void	*ft_memchr_avx2(const unsigned char *src, size_t *n)
+{
+	uint32_t mask;
+
+while (*n >= 32)
+{
+	__asm__ volatile("vmovdqu (%1), %%ymm0\n"
+						"vpcmpeqb %%ymm1, %%ymm0, %%ymm0\n"
+						"vpmovmskb %%ymm0, %0\n"
+						: "=r"(mask)
+						: "r"(src)
+						: "ymm0");
+	if (mask)
+		return (void *)(src + __builtin_ctz(mask));
+	src += 32;
+	*n -= 32;
+}
+return ((void *)src);
+}
+
+void	*ft_memchr(const void *s, int c, size_t n)
+{
+const unsigned char *src = s;
+unsigned char uc = c;
+const unsigned char *end_ptr;
+
+if (n < 32)
+	return (ft_memchr_small(src, uc, n));
+
+ft_broadcast_char(uc);
+
+end_ptr = ft_memchr_avx2(src, &n);
+if (end_ptr != src)
+	src = end_ptr;
+
+// Handle remaining bytes
+void *result = ft_memchr_small(src, uc, n);
+
+__asm__ volatile("vzeroupper" ::: "ymm0", "ymm1");
+return (result);
 }

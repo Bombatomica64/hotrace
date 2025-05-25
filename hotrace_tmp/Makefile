@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -O3 -march=native -Iinclude #-Wall -Wextra -Werror
+CFLAGS = -O3 -march=native -Iinclude -Wall -Wextra -Werror
 LDFLAGS =
 SOURCES = main.c hash.c hash2.c table.c utils.c cpu_check.c readline.c
 SRCDIR=src
@@ -45,7 +45,7 @@ test-hash-functions: $(EXECUTABLE)
 gen:
 	@rm -f gen test.txt
 	@echo "Generating files..."
-	cc gen.c -o gen
+	cc src/gen.c -o gen
 	./gen > test.txt
 	@echo "Test file generated as test.txt"
 
