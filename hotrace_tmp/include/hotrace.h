@@ -38,6 +38,8 @@
 #define ALIGNMENT (sizeof(size_t))
 #define ALIGN(size) (((size) + (ALIGNMENT) - 1) & ~((ALIGNMENT) - 1))
 
+# define C1 0x87c37b91114253d5ULL
+# define C2 0x4cf5ad432745937fULL
 #define CHUNK_SIZE (1 << 20)
 
 typedef enum {

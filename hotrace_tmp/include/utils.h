@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "hotrace.h"
 #include <stddef.h>
 #include <stdint.h>
 
