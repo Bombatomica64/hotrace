@@ -89,3 +89,88 @@ void double_buff(t_ht *ht)
     ht->values = new_values;
     ht->values_size = values_offset;
 }
+
+int	ft_strcmp(const char *s1, const char *s2)
+{
+	int	result;
+
+	__asm__ volatile (
+		// Save registers we'll modify
+		"push %%rcx\n"
+		// Main comparison loop
+		"1:\n"
+		"movzbl (%0), %%eax\n" // Load byte from s1 into eax
+		"movzbl (%1), %%ecx\n" // Load byte from s2 into ecx
+		"incq %0\n"// Increment s1 pointer
+		"incq %1\n"// Increment s2 pointer
+		"testb %%al, %%al\n"// Check if we reached end of s1
+		"je 2f\n"// If zero, exit loop
+		"cmpb %%cl, %%al\n"// Compare bytes
+		"je 1b\n"// If equal, continue loop
+		// Exit point - compute difference
+		"2:\n"
+		"subl %%ecx, %%eax\n"// Compute difference
+		"pop %%rcx\n"// Restore rcx
+		: "=&S"(s1), "=&D"(s2), "=&a"(result)
+		: "0"(s1), "1"(s2)
+		: "memory", "cc");
+	return (result);
+}
+
+void *ft_memchr(const void *s, int c, size_t n)
+{
+    const unsigned char *src = s;
+    unsigned char uc = c;
+    
+    // Handle small sizes with direct comparison
+    if (n < 32) {
+        while (n--) {
+            if (*src == uc)
+                return (void *)src;
+            src++;
+        }
+        return NULL;
+    }
+    
+	// Replace vpbroadcastb with SSE2 equivalent
+	__asm__ volatile (
+		"movd %0, %%xmm1\n"
+		"punpcklbw %%xmm1, %%xmm1\n"
+		"punpcklwd %%xmm1, %%xmm1\n"
+		"pshufd $0, %%xmm1, %%xmm1\n"
+		:
+		: "r" ((uint32_t)uc)
+		: "xmm1"
+	);
+    
+    // Main loop - process 32 bytes at a time
+    while (n >= 32) {
+        uint32_t mask;
+        __asm__ volatile (
+            "vmovdqu (%1), %%ymm0\n"         // Load 32 bytes
+            "vpcmpeqb %%ymm1, %%ymm0, %%ymm0\n" // Compare each byte
+            "vpmovmskb %%ymm0, %0\n"         // Create mask of matches
+            : "=r" (mask)
+            : "r" (src)
+            : "ymm0"
+        );
+        
+        if (mask) {
+            // Found a match - determine exact position
+            return (void *)(src + __builtin_ctz(mask));
+        }
+        
+        src += 32;
+        n -= 32;
+    }
+    
+    // Handle remaining bytes (0-31)
+    while (n--) {
+        if (*src == uc)
+            return (void *)src;
+        src++;
+    }
+    
+    __asm__ volatile("vzeroupper" ::: "ymm0", "ymm1");
+    return NULL;
+}
