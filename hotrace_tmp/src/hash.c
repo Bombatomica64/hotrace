@@ -131,9 +131,6 @@ bool	qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf) {
             h1 ^= k1;
     };
 
-    //----------
-    // finalization
-
     h1 ^= nbytes;
     h2 ^= nbytes;
 
@@ -161,7 +158,7 @@ bool	qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf) {
     return true;
 }
 
-void    ht_insert(t_ht *ht, void *k, void *v)
+void    ht_insert(t_ht *ht, char *k, char *v)
 {
     uint64_t hash_result[2];
 
@@ -173,9 +170,9 @@ void    ht_insert(t_ht *ht, void *k, void *v)
     size_t step = 1 + (h2 & (ht->cap - 2));
     
     size_t probe = 0;
-    while ((char *)ht->tbl[i].k)
+    while (ht->tbl[i].k)
     {
-        if (strcmp((char *)ht->tbl[i].k, k) == 0)
+        if (strcmp(ht->tbl[i].k, k) == 0)
         {
             ht->tbl[i].v = v;
             return;
@@ -191,21 +188,19 @@ void    ht_insert(t_ht *ht, void *k, void *v)
         ht_resize(ht, ht->cap * 2);
 }
 
-void *ht_get(t_ht *ht, const char *k, size_t len)
+void *ht_get(t_ht *ht, char *k, size_t len)
 {
     uint64_t hash_result[2];
+    qhashmurmur3_128(k, len, hash_result);
     uint64_t h1 = hash_result[0];
     uint64_t h2 = hash_result[1];
     
-    qhashmurmur3_128(k, len, hash_result);
     size_t i = h1 & (ht->cap - 1);
     size_t step = 1 + (h2 & (ht->cap - 2));
     
     size_t probe = 0;
-    // printf("len: %zu current %s search: %s\n",len, (char *)ht->tbl[i].k, k);
     while ((char *)ht->tbl[i].k)
     {
-        printf("current %s search: %s\n",(char *)ht->tbl[i].k, k);
         if (strcmp((char *)ht->tbl[i].k, k) == 0)
             return ht->tbl[i].v;
         
@@ -252,7 +247,7 @@ t_ht ht_create(size_t n)
     ht.cap = next_pow2(n < 16 ? 16 : n);
     ht.size = 0;
     ht.tbl = calloc(ht.cap, sizeof(t_entry));
-    ht.data_cap = 4096;
+    ht.data_cap = 4096 * 4096;
     ht.keys = malloc(ht.data_cap);
     ht.values = malloc(ht.data_cap);
     ht.keys_size = 0;

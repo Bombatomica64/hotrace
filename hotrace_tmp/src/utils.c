@@ -50,6 +50,7 @@ void *ft_memcpy(void *dst, const void *src, size_t len)
 
 void double_buff(t_ht *ht)
 {
+    printf("resize\n");
     ht->data_cap *= 2;
     char *new_keys = malloc(ht->data_cap);
     char *new_values = malloc(ht->data_cap);

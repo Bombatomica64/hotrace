@@ -66,8 +66,8 @@ typedef struct s_ht
 
 uint64_t		murmur3_64(const void *key, size_t len, uint64_t seed);
 t_ht			ht_create(size_t n);
-void            ht_insert(t_ht *ht, void *k, void *v);
-void            *ht_get(t_ht *ht, const char *k, size_t len);
+void            ht_insert(t_ht *ht, char *k, char *v);
+void            *ht_get(t_ht *ht, char *k, size_t len);
 void			ht_resize(t_ht *ht, size_t new_cap);
 size_t			next_pow2(size_t n);
 bool			qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf);

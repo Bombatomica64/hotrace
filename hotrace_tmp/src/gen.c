@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define num_keys 100000
-#define tests 10000
+#define num_keys 50
+#define tests 5
 #define bad_test_chance 0
 
 #define key_size 20

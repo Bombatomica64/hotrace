@@ -31,7 +31,7 @@ int main(void)
             if (newline) {
                 size_t line_part_len = newline - (chunk + buf_pos);
                 
-                ft_memcpy(line_buf + line_len, chunk + buf_pos, line_part_len);
+                memcpy(line_buf + line_len, chunk + buf_pos, line_part_len);
                 line_len += line_part_len;
                 line_buf[line_len] = '\0';
                 
@@ -47,7 +47,7 @@ int main(void)
                             ht.keys_size += sizeof(size_t);
                             memcpy(&ht.keys[ht.keys_size], line_buf, line_len + 1);
                             last_key = &ht.keys[ht.keys_size];
-                            ht.keys_size += (line_len + 1);
+                            ht.keys_size += line_len + 1;
                             state = STATE_VALUE;
                             break;
                             
@@ -59,20 +59,26 @@ int main(void)
                             ht.values_size += sizeof(size_t);
                             memcpy(&ht.values[ht.values_size], line_buf, line_len + 1);
                             ht_insert(&ht, last_key, &ht.values[ht.values_size]);
-                            ht.values_size += (line_len + 1);
+                            ht.values_size += line_len + 1;
                             state = STATE_KEY;
                             break;
                             
                         case STATE_SEARCH:
                             {
-                                // void *result = ht_get(&ht, line_buf, line_len);
-                                // if (result) {
-                                //     write(1, (char *)result, *((size_t *)result - (size_t)1));
-                                //     write(1, "\n", 1);
-                                // } else {
-                                //     write(1, line_buf, strlen(line_buf));
-                                //     write(1, ": Not found\n", 12);
-                                // }
+                                // for (size_t i = 0; i < ht.cap; i++) {
+                                //     if (ht.tbl[i].k) {
+                                //         printf("k: %s v: %s\n", (char *)ht.tbl[i].k, (char*)ht.tbl[i].v );
+                                //     }
+                                //  }
+                                // printf("line)buf: %s len: %zu\n", line_buf, line_len);
+                                void *result = ht_get(&ht, line_buf, line_len);
+                                if (result) {
+                                    write(1, (char *)result, *((size_t *)result - (size_t)1));
+                                    write(1, "\n", 1);
+                                } else {
+                                    write(1, line_buf, strlen(line_buf));
+                                    write(1, ": Not found\n", 12);
+                                }
                             }
                             break;
                     }
@@ -89,7 +95,6 @@ int main(void)
     }
 
     if (line_len > 0 && state == STATE_SEARCH) {
-        printf("search\n");
         line_buf[line_len] = '\0';
         void *result = ht_get(&ht, line_buf, line_len);
         if (result) {
