@@ -35,7 +35,7 @@
 #  define IS_X86_64 0
 # endif
 
-#define ALIGNMENT (2 * sizeof(size_t))
+#define ALIGNMENT (sizeof(size_t))
 #define ALIGN(size) (((size) + (ALIGNMENT) - 1) & ~((ALIGNMENT) - 1))
 
 #define CHUNK_SIZE (1 << 20)

@@ -50,7 +50,6 @@ void *ft_memcpy(void *dst, const void *src, size_t len)
 
 void double_buff(t_ht *ht)
 {
-    printf("resize\n");
     ht->data_cap *= 2;
     char *new_keys = malloc(ht->data_cap);
     char *new_values = malloc(ht->data_cap);
@@ -64,24 +63,24 @@ void double_buff(t_ht *ht)
         size_t s = (*((size_t *)ht->tbl[i].k - 1));
         *((size_t *)((new_keys) + keys_offset)) = s;
         keys_offset += sizeof(size_t);
-        memcpy(
+        ft_memcpy(
             &new_keys[keys_offset],
             ht->tbl[i].k,
             s + 1
         );
         ht->tbl[i].k = &new_keys[keys_offset];
-        keys_offset += s + 1;
+        keys_offset += ALIGN(s + 1);
 
         size_t s2 = (*((size_t *)ht->tbl[i].v - 1));
         *((size_t *)((new_values) + values_offset)) = s2;
         values_offset += sizeof(size_t);
-        memcpy(
+        ft_memcpy(
             &new_values[values_offset],
             ht->tbl[i].v,
             s2 + 1
         );
         ht->tbl[i].v = &new_values[values_offset];
-        values_offset += s2 + 1;
+        values_offset += ALIGN(s2 + 1);
     }
     free(ht->keys);
     free(ht->values);

@@ -31,7 +31,7 @@ int main(void)
             if (newline) {
                 size_t line_part_len = newline - (chunk + buf_pos);
                 
-                memcpy(line_buf + line_len, chunk + buf_pos, line_part_len);
+                ft_memcpy(line_buf + line_len, chunk + buf_pos, line_part_len);
                 line_len += line_part_len;
                 line_buf[line_len] = '\0';
                 
@@ -45,9 +45,9 @@ int main(void)
                             }
                             *((size_t *)((ht.keys) + ht.keys_size)) = line_len;
                             ht.keys_size += sizeof(size_t);
-                            memcpy(&ht.keys[ht.keys_size], line_buf, line_len + 1);
+                            ft_memcpy(&ht.keys[ht.keys_size], line_buf, line_len + 1);
                             last_key = &ht.keys[ht.keys_size];
-                            ht.keys_size += line_len + 1;
+                            ht.keys_size += ALIGN(line_len + 1);
                             state = STATE_VALUE;
                             break;
                             
@@ -57,20 +57,14 @@ int main(void)
                             }
                             *((size_t *)((ht.values) + ht.values_size)) = line_len;
                             ht.values_size += sizeof(size_t);
-                            memcpy(&ht.values[ht.values_size], line_buf, line_len + 1);
+                            ft_memcpy(&ht.values[ht.values_size], line_buf, line_len + 1);
                             ht_insert(&ht, last_key, &ht.values[ht.values_size]);
-                            ht.values_size += line_len + 1;
+                            ht.values_size += ALIGN(line_len + 1);
                             state = STATE_KEY;
                             break;
                             
                         case STATE_SEARCH:
                             {
-                                // for (size_t i = 0; i < ht.cap; i++) {
-                                //     if (ht.tbl[i].k) {
-                                //         printf("k: %s v: %s\n", (char *)ht.tbl[i].k, (char*)ht.tbl[i].v );
-                                //     }
-                                //  }
-                                // printf("line)buf: %s len: %zu\n", line_buf, line_len);
                                 void *result = ht_get(&ht, line_buf, line_len);
                                 if (result) {
                                     write(1, (char *)result, *((size_t *)result - (size_t)1));
@@ -87,7 +81,7 @@ int main(void)
                 line_len = 0;
             } else {
                 size_t remaining = bytes_read - buf_pos;
-                memcpy(line_buf + line_len, chunk + buf_pos, remaining);
+                ft_memcpy(line_buf + line_len, chunk + buf_pos, remaining);
                 line_len += remaining;
                 break;
             }

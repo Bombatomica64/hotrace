@@ -191,6 +191,7 @@ void    ht_insert(t_ht *ht, char *k, char *v)
 void *ht_get(t_ht *ht, char *k, size_t len)
 {
     uint64_t hash_result[2];
+
     qhashmurmur3_128(k, len, hash_result);
     uint64_t h1 = hash_result[0];
     uint64_t h2 = hash_result[1];
@@ -210,7 +211,6 @@ void *ht_get(t_ht *ht, char *k, size_t len)
     return NULL;
 }
 
-// Add this resize function to handle growth
 void ht_resize(t_ht *ht, size_t new_cap)
 {
     t_entry *old_tbl = ht->tbl;
@@ -247,7 +247,7 @@ t_ht ht_create(size_t n)
     ht.cap = next_pow2(n < 16 ? 16 : n);
     ht.size = 0;
     ht.tbl = calloc(ht.cap, sizeof(t_entry));
-    ht.data_cap = 4096 * 4096;
+    ht.data_cap = 4096;
     ht.keys = malloc(ht.data_cap);
     ht.values = malloc(ht.data_cap);
     ht.keys_size = 0;
