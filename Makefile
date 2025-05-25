@@ -77,10 +77,10 @@ gprof-visual: gprof-report
 
 # Complete profiling workflow in a single command
 profile-all: profile
-	@echo "Generating test data..."
-	@rm -f gen test.txt
-	cc gen.c -o gen
-	./gen > test.txt
+	# @echo "Generating test data..."
+	# @rm -f gen test.txt
+	# cc gen.c -o gen
+	# ./gen > test.txt
 	@echo "Running program with profiling enabled..."
 	./$(EXECUTABLE) < test.txt
 	@echo "Generating profiling report..."
