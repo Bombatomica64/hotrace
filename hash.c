@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "hotrace.h"
+#include <hotrace.h>
 
 // ==================== MurmurHash Implementation ====================
 
@@ -89,3 +89,35 @@ bool	qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf)
 	finalize_hash(nbytes, &ctx.h1, &ctx.h2, retbuf);
 	return (true);
 }
+
+
+// bool qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf)
+// {
+//     if (data == NULL || nbytes == 0)
+//         return (false);
+        
+//     // FNV-1a constants
+//     uint64_t hash = 0xcbf29ce484222325ULL; // FNV offset basis
+//     const uint64_t fnv_prime = 0x100000001b3ULL;
+    
+//     // Compute FNV-1a hash
+//     const uint8_t *bytes = (const uint8_t*)data;
+//     for (size_t i = 0; i < nbytes; i++) {
+//         hash ^= bytes[i];
+//         hash *= fnv_prime;
+//     }
+    
+//     // Generate a second 64-bit hash value by applying more mixing
+//     uint64_t hash2 = hash;
+//     hash2 ^= hash2 >> 33;
+//     hash2 *= 0xff51afd7ed558ccdULL;
+//     hash2 ^= hash2 >> 33;
+//     hash2 *= 0xc4ceb9fe1a85ec53ULL;
+//     hash2 ^= hash2 >> 33;
+    
+//     // Store both 64-bit values in the return buffer
+//     ((uint64_t *)retbuf)[0] = hash;
+//     ((uint64_t *)retbuf)[1] = hash2;
+    
+//     return (true);
+// }

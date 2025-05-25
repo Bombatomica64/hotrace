@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "hotrace.h"
+#include <hotrace.h>
 
 void	get_hash_values(const void *key, size_t len, uint64_t *h1, uint64_t *h2)
 {
@@ -25,19 +25,16 @@ void            ht_insert(t_ht *ht, void *k, void *v)
 {
     uint64_t hash_result[2];
 
-    // Get both hash values in a single call
     qhashmurmur3_128(k, *((size_t *)k - 1), hash_result);
     uint64_t h1 = hash_result[0];
     uint64_t h2 = hash_result[1];
     
     size_t i = h1 & (ht->cap - 1);
-    // Double hashing - use second hash from 128-bit result
-    size_t step = 1 + (h2 & (ht->cap - 2)); // Ensure step is never 0
-    
+    size_t step = 1 + (h2 & (ht->cap - 2));
     size_t probe = 0;
     while ((char *)ht->tbl[i].k)
     {
-        if (strcmp((char *)ht->tbl[i].k, k) == 0)
+        if (ft_strcmp((char *)ht->tbl[i].k, k) == 0)
         {
             ht->tbl[i].v = v;
             return;
@@ -57,7 +54,7 @@ void            ht_insert(t_ht *ht, void *k, void *v)
 void *ht_get(t_ht *ht, const char *k, size_t len)
 {
     uint64_t hash_result[2];
-    // Get both hash values in a single call
+
     qhashmurmur3_128(k, len, hash_result);
     uint64_t h1 = hash_result[0];
     uint64_t h2 = hash_result[1];
@@ -68,7 +65,7 @@ void *ht_get(t_ht *ht, const char *k, size_t len)
     size_t probe = 0;
     while ((char *)ht->tbl[i].k)
     {
-        if (strcmp(ht->tbl[i].k, k) == 0)
+        if (ft_strcmp(ht->tbl[i].k, k) == 0)
             return ht->tbl[i].v;
         
         probe++;

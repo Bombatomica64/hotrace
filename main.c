@@ -11,11 +11,11 @@
 /* ************************************************************************** */
 
 
-#include "hotrace.h"
+#include <hotrace.h>
 
 // --- MAIN ---
 
-#include "hotrace.h"
+#include <hotrace.h>
 
 #include <time.h>
 #include <stdio.h>
@@ -61,7 +61,7 @@ struct timespec start, end;
         // Process each character in the chunk
         while (buf_pos < bytes_read) {
             // Find the next newline or end of chunk
-            char *newline = memchr(chunk + buf_pos, '\n', bytes_read - buf_pos);
+            char *newline = ft_memchr(chunk + buf_pos, '\n', bytes_read - buf_pos);
             
             if (newline) {
                 // Complete line found

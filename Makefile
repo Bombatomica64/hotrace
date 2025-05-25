@@ -1,7 +1,7 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -O3 -march=native
+CFLAGS = -O3 -march=native -Iinclude #-Wall -Wextra -Werror
 LDFLAGS =
-SOURCES = main.c hash.c hash2.c table.c utils.c
+SOURCES = main.c hash.c hash2.c table.c utils.c strcmp.c memchr.c cpu_check.c
 OBJ_DIR = obj
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(SOURCES:.c=.o))
 EXECUTABLE = hotrace

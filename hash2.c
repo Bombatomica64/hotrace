@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "hotrace.h"
+#include <hotrace.h>
 
 void	process_tail_k2(const uint8_t *tail, int res, uint64_t *h2,
 		uint64_t *k2)

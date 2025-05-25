@@ -35,17 +35,19 @@
 
 // --- HASH TABLE ---
 
-typedef enum {
-    STATE_KEY,
-    STATE_VALUE,
-    STATE_SEARCH,
-} parse_state_t;
+typedef enum
+{
+	STATE_KEY,
+	STATE_VALUE,
+	STATE_SEARCH,
+}				parse_state_t;
 
 // --- HASH TABLE ---
-typedef struct s_entry {
-    void *k;
-    void *v;
-}   t_entry;
+typedef struct s_entry
+{
+	void		*k;
+	void		*v;
+}				t_entry;
 
 typedef struct s_ht
 {
@@ -67,8 +69,8 @@ typedef struct s_murmur_ctx
 
 uint64_t		murmur3_64(const void *key, size_t len, uint64_t seed);
 t_ht			ht_create(size_t n);
-void            ht_insert(t_ht *ht, void *k, void *v);
-void            *ht_get(t_ht *ht, const char *k, size_t len);
+void			ht_insert(t_ht *ht, void *k, void *v);
+void			*ht_get(t_ht *ht, const char *k, size_t len);
 void			ht_resize(t_ht *ht, size_t new_cap);
 size_t			next_pow2(size_t n);
 bool			qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf);
@@ -77,5 +79,8 @@ void			get_hash_values(const void *key, size_t len, uint64_t *h1,
 					uint64_t *h2);
 void			process_tail(const uint8_t *tail, size_t nbytes, uint64_t *h1,
 					uint64_t *h2);
-void	*ft_memcpy(void *dst, const void *src, size_t len);
+void			*ft_memcpy(void *dst, const void *src, size_t len);
+int				ft_strcmp(const char *s1, const char *s2);
+void			*ft_memchr(const void *s, int c, size_t n);
+
 #endif
