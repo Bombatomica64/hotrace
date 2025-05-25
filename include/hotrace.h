@@ -27,33 +27,41 @@
 # include <stdlib.h>
 # include <string.h>
 # include <sys/stat.h>
-# include <sys/types.h>
 # include <unistd.h>
+
+# if defined(__x86_64__)
+#  define IS_X86_64 1
+# else
+#  define IS_X86_64 0
+# endif
 
 # define C1 0x87c37b91114253d5ULL
 # define C2 0x4cf5ad432745937fULL
+# define CHUNK_SIZE 1048576
 
-// --- HASH TABLE ---
-
-typedef enum
+typedef enum parse_state_e
 {
 	STATE_KEY,
 	STATE_VALUE,
 	STATE_SEARCH,
-}				parse_state_t;
+}	t_parse_state;
 
-// --- HASH TABLE ---
 typedef struct s_entry
 {
-	void		*k;
-	void		*v;
-}				t_entry;
+	void	*k;
+	void	*v;
+}			t_entry;
 
 typedef struct s_ht
 {
 	t_entry		*tbl;
+	void		*keys;
+	void		*values;
 	size_t		cap;
 	size_t		size;
+	size_t		keys_size;
+	size_t		values_size;
+	size_t		data_cap;
 }				t_ht;
 
 typedef struct s_murmur_ctx
@@ -67,20 +75,16 @@ typedef struct s_murmur_ctx
 	int			nblocks;
 }				t_murmur_ctx;
 
-uint64_t		murmur3_64(const void *key, size_t len, uint64_t seed);
-t_ht			ht_create(size_t n);
-void			ht_insert(t_ht *ht, void *k, void *v);
-void			*ht_get(t_ht *ht, const char *k, size_t len);
-void			ht_resize(t_ht *ht, size_t new_cap);
-size_t			next_pow2(size_t n);
-bool			qhashmurmur3_128(const void *data, size_t nbytes, void *retbuf);
-void			ht_free(t_ht *ht);
-void			get_hash_values(const void *key, size_t len, uint64_t *h1,
-					uint64_t *h2);
-void			process_tail(const uint8_t *tail, size_t nbytes, uint64_t *h1,
-					uint64_t *h2);
-void			*ft_memcpy(void *dst, const void *src, size_t len);
-int				ft_strcmp(const char *s1, const char *s2);
-void			*ft_memchr(const void *s, int c, size_t n);
+t_ht	ht_create(size_t n);
+void	ht_insert(t_ht *ht, void *k, void *v);
+void	*ht_get(t_ht *ht, const char *k, size_t len);
+void	ht_resize(t_ht *ht, size_t new_cap);
+size_t	next_pow2(size_t n);
+bool	qhashmurmur3_128(const void *data, size_t nbytes, t_murmur_ctx *ctx);
+void	ht_free(t_ht *ht);
+void	get_hash_values(const void *key, size_t len, uint64_t *h1,
+			uint64_t *h2);
+void	process_tail(const uint8_t *tail, size_t nbytes, uint64_t *h1,
+			uint64_t *h2);
 
 #endif

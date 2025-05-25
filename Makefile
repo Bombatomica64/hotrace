@@ -1,7 +1,9 @@
 CC = cc
-CFLAGS = -O3 -march=native -Iinclude #-Wall -Wextra -Werror
+CFLAGS = -O3 -march=native -Iinclude -Wall -Wextra -Werror
 LDFLAGS =
-SOURCES = main.c hash.c hash2.c table.c utils.c strcmp.c memchr.c cpu_check.c
+SOURCES = main.c hash.c hash2.c table.c utils.c readline.c
+SRCDIR=src
+SRCS=$(addprefix $(SRCDIR)/, $(SOURCES))
 OBJ_DIR = obj
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(SOURCES:.c=.o))
 EXECUTABLE = hotrace
@@ -16,7 +18,7 @@ $(EXECUTABLE): $(OBJ_DIR) $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 # Updated rule for object files in the obj directory
-$(OBJ_DIR)/%.o: %.c
+$(OBJ_DIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
@@ -43,7 +45,7 @@ test-hash-functions: $(EXECUTABLE)
 gen:
 	@rm -f gen test.txt
 	@echo "Generating files..."
-	cc gen.c -o gen
+	cc src/gen.c -o gen
 	./gen > test.txt
 	@echo "Test file generated as test.txt"
 
