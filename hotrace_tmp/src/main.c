@@ -33,14 +33,14 @@ static void states(parse_state_t state, t_ht *ht, char *line_buf, size_t line_le
 			double_buff(ht);
 		*((size_t *)((ht->keys) + ht->keys_size)) = line_len;
 		ht->keys_size += sizeof(size_t);
-		ft_memcpy(&ht->keys[ht->keys_size], line_buf, line_len + 1);
+		ft_align_memcpy(&ht->keys[ht->keys_size], line_buf, line_len + 1);
 		last_key = &ht->keys[ht->keys_size];
 		ht->keys_size += ALIGN(line_len + 1);
 		return ;
 	}
 	*((size_t *)((ht->values) + ht->values_size)) = line_len;
 	ht->values_size += sizeof(size_t);
-	ft_memcpy(&ht->values[ht->values_size], line_buf, line_len + 1);
+	ft_align_memcpy(&ht->values[ht->values_size], line_buf, line_len + 1);
 	ht_insert(ht, last_key, &ht->values[ht->values_size]);
 	ht->values_size += ALIGN(line_len + 1);
 }
